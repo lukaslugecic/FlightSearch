@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Flight Search</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+<select id="toggleDropdown">
+    <option value="">Select to show form</option>
+    <option value="1">Show form</option>
+</select>
+
+<form id="searchForm" style="display: none;" action="/" method="post" th:object="${searchRequest}">
+    <h1>Flight Search</h1>
+    <div>
+        <label for="originLocationCode">Origin Airport:</label>
+        <input type="text" id="originLocationCode" th:field="*{originLocationCode}" />
+    </div>
+    <div>
+        <label for="destinationLocationCode">Destination Airport:</label>
+        <input type="text" id="destinationLocationCode" th:field="*{destinationLocationCode}" />
+    </div>
+    <div>
+        <label for="departureDate">Departure Date:</label>
+        <input type="text" id="departureDate" th:field="*{departureDate}" />
+        <small>Format: YYYY-MM-DD</small>
+    </div>
+    <div>
+        <label for="returnDate">Return Date:</label>
+        <input type="text" id="returnDate" th:field="*{returnDate}" />
+        <small>Format: YYYY-MM-DD</small>
+    </div>
+    <div>
+        <label for="adults">Number of Passengers:</label>
+        <input type="number" id="adults" th:field="*{adults}" />
+    </div>
+    <div>
+        <label for="currencyCode">Currency Code:</label>
+        <input type="text" id="currencyCode" th:field="*{currencyCode}" />
+    </div>
+    <button type="submit">Search</button>
+</form>
+<h1>Flight Search Results</h1>
+
+
+<table>
+    <thead>
+    <tr>
+        <th>Origin</th>
+        <th>Destination</th>
+        <th>Departure</th>
+        <th>Return</th>
+        <th>Stops (Outbound)</th>
+        <th>Stops (Return)</th>
+        <th>Passengers</th>
+        <th>Currency</th>
+        <th>Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="flight : ${flights}">
+        <td th:text="${flight.originLocationCode}"></td>
+        <td th:text="${flight.destinationLocationCode}"></td>
+        <td th:text="${flight.departureDate}"></td>
+        <td th:text="${flight.returnDate}"></td>
+        <td th:text="${flight.stopsOutbound}"></td>
+        <td th:text="${flight.stopsReturn}"></td>
+        <td th:text="${flight.numberOfPassengers}"></td>
+        <td th:text="${flight.currencyCode}"></td>
+        <td th:text="${flight.totalPrice}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
+
+
+<script>
+    document.getElementById('toggleDropdown').addEventListener('change', function() {
+        var form = document.getElementById('searchForm');
+        if (this.value === '1') {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
+    });
+</script>
