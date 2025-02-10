@@ -1,13 +1,12 @@
 package com.example.flightSearch.service;
 
-import com.example.flightSearch.model.Flight;
-import com.example.flightSearch.model.SearchRequest;
+import com.example.flightSearch.dto.Flight;
+import com.example.flightSearch.dto.SearchRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,17 +19,17 @@ public class FlightSearchService {
         this.amadeusApiService = amadeusApiService;
     }
 
+    @Cacheable("flights")
     public List<Flight> searchFlights(SearchRequest searchRequest) {
-        Mono<String> flightOffersMono = amadeusApiService.getFlightOffers(
+        String flightOffers = amadeusApiService.getFlightOffers(
                 searchRequest.getOriginLocationCode(),
                 searchRequest.getDestinationLocationCode(),
                 searchRequest.getDepartureDate(),
                 searchRequest.getReturnDate(),
                 searchRequest.getAdults(),
                 searchRequest.getCurrencyCode()
-        ).map(bytes -> new String(bytes, StandardCharsets.UTF_8));
-        String jsonResponse = flightOffersMono.block();
-        return parseFlights(jsonResponse);
+        ).block();
+        return parseFlights(flightOffers);
     }
 
     private List<Flight> parseFlights(String jsonResponse) {
@@ -40,11 +39,6 @@ public class FlightSearchService {
             JsonNode root = mapper.readTree(jsonResponse);
 
             if (root.has("data") && root.get("data").isArray()) {
-                if(root.get("data").isEmpty()) {
-                    System.out.println("No flights found");
-                    return flightOffers;
-                }
-
                 for (JsonNode flightOfferNode : root.get("data")) {
                     Flight flightOffer = new Flight();
 
@@ -98,7 +92,7 @@ public class FlightSearchService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error parsing flights response: " + e.getMessage());
         }
         return flightOffers;
     }

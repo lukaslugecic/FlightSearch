@@ -1,6 +1,8 @@
 package com.example.flightSearch.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -11,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Service
@@ -55,8 +58,8 @@ public class AmadeusApiService {
                 .bodyToMono(Map.class)
                 .map(response -> {
                     accessToken = (String) response.get("access_token");
-                    Integer expiresIn = (Integer) response.get("expires_in"); // Expiry in seconds
-                    tokenExpiry = System.currentTimeMillis() + (expiresIn * 1000L) - 60000; // Subtract 1 minute  ?????
+                    Integer expiresIn = (Integer) response.get("expires_in");
+                    tokenExpiry = System.currentTimeMillis() + (expiresIn * 1000L) - 60000;
                     return accessToken;
                 })
                 .onErrorResume(e -> {
@@ -65,8 +68,8 @@ public class AmadeusApiService {
                 });
     }
 
-    //@Cacheable(value = "flightOffers", key = "{#originLocationCode, #destinationLocationCode, #departureDate, #adults}")
-    public Mono<byte[]> getFlightOffers(String originLocationCode, String destinationLocationCode, String departureDate, String returnDate, Integer adults, String currencyCode) {
+
+    public Mono<String> getFlightOffers(String originLocationCode, String destinationLocationCode, String departureDate, String returnDate, Integer adults, String currencyCode) {
         return getAccessToken()
                 .flatMap(accessToken -> {
                     UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
@@ -87,13 +90,18 @@ public class AmadeusApiService {
                         builder.queryParam("returnDate", returnDate);
                     }
 
-                    System.out.println(builder.build().toUriString());
-
                     return webClient.get()
                             .uri(builder.build().toUriString())
                             .header("Authorization", "Bearer " + accessToken)
                             .retrieve()
-                            .bodyToMono(byte[].class); // Sting.class
+                            .bodyToFlux(DataBuffer.class)
+                            .reduce(DataBuffer::write)
+                            .map(dataBuffer -> {
+                                byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                                dataBuffer.read(bytes);
+                                DataBufferUtils.release(dataBuffer);
+                                return new String(bytes, StandardCharsets.UTF_8);
+                            });
                 })
                 .onErrorResume(e -> {
                     System.err.println("Error fetching flight offers: " + e.getMessage());
