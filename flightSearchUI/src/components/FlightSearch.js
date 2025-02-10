@@ -1,15 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-const FlightSearch = ({ onSearch }) => {
-  const [searchParams, setSearchParams] = useState({
-    originLocationCode: '',
-    destinationLocationCode: '',
-    departureDate: '',
-    returnDate: '',
-    adults: 1,
-    currencyCode: 'EUR'
-  });
-
+const FlightSearch = ({ onSearch, searchParams, setSearchParams }) => {
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSearchParams(prevParams => ({
