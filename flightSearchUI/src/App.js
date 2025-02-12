@@ -26,7 +26,7 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:8080/api/flights/search?page=${page}&size=${pageSize}`, {
+      const response = await fetch('http://localhost:8080/api/flights/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/flights")
-@CrossOrigin(origins = "http://localhost:3000")
 public class FlightSearchController {
 
     private final FlightSearchService flightSearchService;

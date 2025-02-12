@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./flightSearch
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    container_name: flight-search-backend
+
+  frontend:
+    build:
+      context: ./flightSearchUI
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    container_name: flight-search-frontend
+    depends_on:
+      - backend
