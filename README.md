@@ -1,10 +1,26 @@
-React and Spirng Boot Application for searching flight offers
+# Flight Search Application
 
+## Description
 
-Using Amadeus API https://developers.amadeus.com/self-service/category/flights/api-doc/flight-offers-search
+This application allows users to search for flights between different locations.
 
+## How to Run
 
-frontend: localhost:3000
+1.  Clone the repository.
+2.  Navigate to the project directory.
+3.  Run the application using: `docker-compose up --build`
 
+## Libraries Used
 
-backend: localhost:8080
+*   Spring Boot
+*   React
+
+## Features
+
+*   Search for flights
+*   Display available flights
+*   User-friendly interface
+
+## Developers
+
+*   Luka Slugečić
